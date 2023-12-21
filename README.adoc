@@ -133,4 +133,6 @@ $ ansible-playbook  install-postgresql.yml
       ansible.builtin.include_role:
         name: geerlingguy.postgresql
 
+Author: Tony Kay (tok@redhat.com)
+Date: 2023-12-21
 ----
