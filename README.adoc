@@ -1,0 +1,136 @@
+= Ansible Playbook: Deploy PostgreSQL
+
+== Overview
+
+This Ansible playbook automates the deployment of PostgreSQL database server. 
+It provides a simple, flexible and repeatable way to set up and configure PostgreSQL on target hosts.
+It uses the geerlinguy.postgresql Ansible role to install PostgreSQL on the target host(s).
+
+It is intended for use with the Red Hat AAP2 Containerized Architecture, however, is flexible and can be used anywhere that Postgres on Linux is required.
+
+== Prerequisites
+
+Before running this playbook, make sure you have the following:
+
+- Ansible installed on the control machine.
+- SSH access to the target hosts.
+- Inventory file with the target hosts defined.
+- `ansible-galaxy role install -r requirments.yml -p roles` to install the required role.
+
+== Usage
+
+To use this playbook, follow these steps:
+
+. Clone the repository:
++
+
+[source,shell]
+----
+$ git clone https://github.com/rhpds/postgres-for-aap2.git
+----
+
+. Navigate to the playbook directory:
++
+
+[source,shell]
+----
+$ cd postgres-for-aap2
+----
+
+. Update the inventory file:
++
+
+Edit the `inventory` file , *if required* and specify the target hosts where PostgreSQL will be deployed.
++
+
+[source,yaml]
+----
+[aap2_databases]
+aap2-database
+----
+
+. Configure variables:
++
+
+Edit the `group_vars/aap2_databases.yml` file and customize the PostgreSQL installation settings according to your requirements.
++
+[source,sh]
+----
+---
+postgresql_users:
+  - name: postgres
+    password: <YOUR_PASSWORD_HERE>
+
+postgresql_version: 13
+
+postgresql_global_config_options:
+
+  - option: listen_addresses
+    value: '*'
+
+  - option: unix_socket_directories
+    value: '{{ postgresql_unix_socket_directories | join(",") }}'
+ 
+  - option: log_directory
+    value: 'log'
+
+postgresql_hba_entries:
+  
+  - type: local
+    database: all
+    user: postgres
+    auth_method: peer
+
+  - type: local
+    database: all
+    user: all
+    auth_method: peer
+
+  - type: host
+    database: all
+    user: all
+    address: '127.0.0.1/32'
+    auth_method: md5
+
+  - type: host
+    database: all
+    user: all
+    address: '::1/128'
+    auth_method: md5
+  
+  - type: host
+    database: all
+    user: all
+    address: '0.0.0.0/0'
+    auth_method: md5
+----
+
+. Run the playbook:
++
+
+Execute the following command to run the playbook:
++
+
+[source,shell]
+----
+$ ansible-playbook  install-postgresql.yml
+----
+
+== Playbook Example
+
+`install-postgresql.yml`:
+[source,yaml]
+----
+---
+- name: Install Postgresql
+  hosts: all
+  gather_facts: true
+  become: true
+
+  tasks:
+
+    - name: Install Postgresql
+      ansible.builtin.include_role:
+        name: geerlingguy.postgresql
+
+----

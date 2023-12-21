@@ -1,0 +1,11 @@
+---
+- name: Install Postgresql
+  hosts: all
+  gather_facts: true
+  become: true
+
+  tasks:
+
+    - name: Install Postgresql
+      ansible.builtin.include_role:
+        name: geerlingguy.postgresql
