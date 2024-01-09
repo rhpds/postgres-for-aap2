@@ -1,7 +1,5 @@
 ---
 
-foo: bar
-
 postgresql_users:
   - name: postgres
     password: r3dh4t1!
